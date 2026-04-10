@@ -7,7 +7,6 @@ import {
   Mail, 
   ChevronRight, 
   CheckCircle2, 
-  Users, 
   Clock, 
   Trophy 
 } from "lucide-react";
