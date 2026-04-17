@@ -18,5 +18,9 @@ Baseado na auditoria do **Site-Visual-Moderno Standard**, aqui estão as sugest�
 - **Validação:** Adicionar `Zod` + `React Hook Form` no formulário de contato para melhor UX de erro.
 - **Internacionalização:** Preparar o projeto para i18n (Português/Inglês), dado o nível das soluções da Nano.
 
+## 🛡️ Segurança
+- **API Key Proxy:** Mover a lógica de envio de e-mail para uma **Edge Function** (Vercel/Netlify) ou um backend. Atualmente, a chave `VITE_RESEND_API_KEY` fica exposta no código fonte do navegador.
+- **Honeypot:** Adicionar um campo oculto no formulário para evitar spam de bots.
+
 ---
 *Gerado por site-premium-enhancer*
