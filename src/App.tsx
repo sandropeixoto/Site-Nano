@@ -208,12 +208,51 @@ const Contact = () => {
     setStatus('loading');
 
     try {
+      const emailBody = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0a0a; color: #ffffff; padding: 40px; border-radius: 20px; border: 1px solid #1a1a1a;">
+          <div style="margin-bottom: 30px; text-align: center;">
+            <h1 style="color: #10b981; margin: 0; font-size: 24px; letter-spacing: -1px;">NANO</h1>
+            <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">Novo contato via site</p>
+          </div>
+          
+          <div style="background-color: #161616; padding: 25px; border-radius: 15px; margin-bottom: 25px;">
+            <div style="margin-bottom: 20px;">
+              <label style="color: #10b981; font-size: 12px; font-weight: bold; text-transform: uppercase;">Nome</label>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #f8fafc;">${data.name}</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <label style="color: #10b981; font-size: 12px; font-weight: bold; text-transform: uppercase;">E-mail</label>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #f8fafc;">${data.email}</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <label style="color: #10b981; font-size: 12px; font-weight: bold; text-transform: uppercase;">Telefone</label>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #f8fafc;">${data.phone}</p>
+            </div>
+            
+            <div>
+              <label style="color: #10b981; font-size: 12px; font-weight: bold; text-transform: uppercase;">Mensagem</label>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #f8fafc; line-height: 1.6;">${data.message}</p>
+            </div>
+          </div>
+          
+          <div style="text-align: center; color: #475569; font-size: 12px;">
+            <p>© 2026 Nano Soluções Tecnológicas. Enviado via formulário do site.</p>
+          </div>
+        </div>
+      `;
+
       const response = await fetch(`${API_URL}/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          subject: 'Novo contato via site NANO',
+          html: emailBody
+        })
       });
 
       const result = await response.json();
