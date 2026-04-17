@@ -175,13 +175,35 @@ const Services = () => {
 };
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const contactSchema = z.object({
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  email: z.string().email("Endereço de e-mail inválido"),
+  phone: z.string().min(14, "O telefone deve ser válido").regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Formato inválido"),
+  message: z.string().min(10, "A mensagem deve ter pelo menos 10 caracteres")
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 const Contact = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema)
+  });
+
+  const phoneMask = (value: string) => {
+    if (!value) return '';
+    value = value.replace(/\D/g, '');
+    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+    value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+    return value.substring(0, 15);
+  };
+
+  const onSubmit = async (data: ContactFormData) => {
     setStatus('loading');
 
     try {
@@ -194,12 +216,13 @@ const Contact = () => {
         body: JSON.stringify({
           from: 'Acme <onboarding@resend.dev>', // Ou email de domínio verificado do Resend
           to: ['belemonline@gmail.com'],
-          subject: `Novo contato pelo site: ${formData.name}`,
+          subject: `Novo contato pelo site: ${data.name}`,
           html: `
             <h3>Novo Contato Recebido</h3>
-            <p><strong>Nome:</strong> ${formData.name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Mensagem:</strong><br/>${formData.message}</p>
+            <p><strong>Nome:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            <p><strong>Telefone:</strong> ${data.phone}</p>
+            <p><strong>Mensagem:</strong><br/>${data.message}</p>
           `
         })
       });
@@ -209,7 +232,7 @@ const Contact = () => {
       }
 
       setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+      reset();
     } catch (err) {
       console.error(err);
       setStatus('error');
@@ -225,44 +248,56 @@ const Contact = () => {
         </p>
         
         <div className="glass-card p-8 text-left border-white/5">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">Nome</label>
                 <input 
                   type="text" 
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
+                  {...register('name')}
+                  className={`w-full bg-white/5 border ${errors.name ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
                   placeholder="Seu nome"
                   disabled={status === 'loading'}
                 />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">E-mail</label>
                 <input 
                   type="email" 
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
+                  {...register('email')}
+                  className={`w-full bg-white/5 border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
                   placeholder="contato@empresa.com"
                   disabled={status === 'loading'}
                 />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300">Telefone</label>
+              <input 
+                type="text" 
+                {...register('phone')}
+                onChange={(e) => {
+                  e.target.value = phoneMask(e.target.value);
+                  register('phone').onChange(e);
+                }}
+                className={`w-full bg-white/5 border ${errors.phone ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
+                placeholder="(99) 99999-9999"
+                disabled={status === 'loading'}
+              />
+              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Sua Mensagem</label>
               <textarea 
                 rows={4}
-                required
-                value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
+                {...register('message')}
+                className={`w-full bg-white/5 border ${errors.message ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
                 placeholder="Descreva seu desafio tecnológico..."
                 disabled={status === 'loading'}
               />
+              {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>}
             </div>
             
             {status === 'success' && (
