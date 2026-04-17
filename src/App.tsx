@@ -1,27 +1,27 @@
 import { motion } from "framer-motion";
 import logoImg from "./assets/programacao.png";
-import { 
-  Rocket, 
-  Smartphone, 
-  Globe, 
-  BarChart3, 
-  Mail, 
-  ChevronRight, 
-  CheckCircle2, 
-  Clock, 
-  Trophy 
+import {
+  Rocket,
+  Smartphone,
+  Globe,
+  BarChart3,
+  Mail,
+  ChevronRight,
+  CheckCircle2,
+  Clock,
+  Trophy
 } from "lucide-react";
 
 const Navbar = () => (
   <nav className="fixed top-0 w-full z-50 px-6 py-4">
     <div className="max-w-7xl mx-auto flex items-center justify-between glass-card px-6 py-3 border-white/5">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded-lg flex items-center justify-center overflow-hidden">
-          <img src={logoImg} alt="N" className="w-full h-full object-cover" />
+        <div className="w-8 h-8 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded-lg flex items-center justify-center overflow-hidden p-1">
+          <img src={logoImg} alt="N" className="w-full h-full object-contain" />
         </div>
         <span className="text-xl font-bold text-white tracking-tighter">NANO</span>
       </div>
-      
+
       <div className="hidden md:flex items-center gap-8 text-sm font-medium">
         <a href="#inicio" className="hover:text-premium-emerald transition-colors">Início</a>
         <a href="#servicos" className="hover:text-premium-emerald transition-colors">Serviços</a>
@@ -52,7 +52,7 @@ const Hero = () => (
           <span className="text-gradient">Sob Medida</span> para o seu Negócio
         </h1>
         <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Transformamos desafios em oportunidades reais através de expertise em desenvolvimento 
+          Transformamos desafios em oportunidades reais através de expertise em desenvolvimento
           web, mobile e consultoria estratégica de alto nível.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -131,7 +131,7 @@ const Services = () => {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Nossa Expertise</h2>
           <p className="text-slate-400">Desenvolvemos o futuro do seu negócio hoje.</p>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {services.map((service, idx) => (
             <motion.div
@@ -145,7 +145,7 @@ const Services = () => {
               <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                 <service.icon className="w-32 h-32" />
               </div>
-              
+
               <div className="w-14 h-14 bg-gradient-to-br from-premium-emerald/20 to-premium-cyan/20 rounded-2xl flex items-center justify-center mb-6">
                 <service.icon className="w-7 h-7 text-premium-emerald" />
               </div>
@@ -153,7 +153,7 @@ const Services = () => {
               <p className="text-slate-400 mb-8 leading-relaxed">
                 {service.description}
               </p>
-              
+
               <ul className="space-y-3">
                 {service.features.map((feat, fidx) => (
                   <li key={fidx} className="flex items-center gap-2 text-sm text-slate-300">
@@ -162,10 +162,10 @@ const Services = () => {
                   </li>
                 ))}
               </ul>
-              
-              <button className="mt-8 flex items-center gap-2 text-premium-emerald font-semibold group-hover:gap-4 transition-all">
+
+              {/* <button className="mt-8 flex items-center gap-2 text-premium-emerald font-semibold group-hover:gap-4 transition-all">
                 Saiba mais <ChevronRight className="w-4 h-4" />
-              </button>
+              </button> */}
             </motion.div>
           ))}
         </div>
@@ -214,7 +214,7 @@ const Contact = () => {
           'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
         },
         body: JSON.stringify({
-          from: 'Acme <onboarding@resend.dev>', // Ou email de domínio verificado do Resend
+          from: 'NANO <contato@mail.nano.net.br>', // Ou email de domínio verificado do Resend
           to: ['belemonline@gmail.com'],
           subject: `Novo contato pelo site: ${data.name}`,
           html: `
@@ -246,14 +246,14 @@ const Contact = () => {
         <p className="text-slate-400 mb-10">
           Nossa equipe de especialistas está pronta para analisar seu projeto e propor a melhor solução técnica.
         </p>
-        
+
         <div className="glass-card p-8 text-left border-white/5">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">Nome</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   {...register('name')}
                   className={`w-full bg-white/5 border ${errors.name ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
                   placeholder="Seu nome"
@@ -263,8 +263,8 @@ const Contact = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">E-mail</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   {...register('email')}
                   className={`w-full bg-white/5 border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
                   placeholder="contato@empresa.com"
@@ -275,8 +275,8 @@ const Contact = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Telefone</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 {...register('phone')}
                 onChange={(e) => {
                   e.target.value = phoneMask(e.target.value);
@@ -290,7 +290,7 @@ const Contact = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Sua Mensagem</label>
-              <textarea 
+              <textarea
                 rows={4}
                 {...register('message')}
                 className={`w-full bg-white/5 border ${errors.message ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors`}
@@ -299,32 +299,32 @@ const Contact = () => {
               />
               {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>}
             </div>
-            
+
             {status === 'success' && (
               <div className="p-4 bg-premium-emerald/10 border border-premium-emerald/20 rounded-xl text-premium-emerald text-sm text-center">
                 Mensagem enviada com sucesso! Entraremos em contato em breve.
               </div>
             )}
-            
+
             {status === 'error' && (
               <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm text-center">
                 Ocorreu um erro ao enviar a mensagem. Tente novamente mais tarde.
               </div>
             )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn-premium w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={status === 'loading'}
             >
-              <Mail className="w-5 h-5" /> 
+              <Mail className="w-5 h-5" />
               {status === 'loading' ? 'Enviando...' : 'Enviar Mensagem'}
             </button>
           </form>
         </div>
-        
+
         <div className="mt-12 text-slate-500 text-sm">
-          Ou envie um e-mail direto para: <span className="text-white">contato@nano.com.br</span>
+          Ou envie um e-mail direto para: <span className="text-white">contato@nano.net.br</span>
         </div>
       </div>
     </section>
@@ -335,8 +335,8 @@ const Footer = () => (
   <footer className="py-12 border-t border-white/5">
     <div className="max-w-7xl mx-auto px-6 flex flex-col md:row items-center justify-between gap-6">
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded flex items-center justify-center overflow-hidden">
-          <img src={logoImg} alt="N" className="w-full h-full object-cover" />
+        <div className="w-6 h-6 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded flex items-center justify-center overflow-hidden p-[2px]">
+          <img src={logoImg} alt="N" className="w-full h-full object-contain" />
         </div>
         <span className="font-bold text-white tracking-tighter">NANO</span>
       </div>
@@ -356,7 +356,7 @@ export default function App() {
     <div className="min-h-screen relative overflow-x-hidden selection:bg-premium-emerald/30 selection:text-white">
       {/* Dynamic Background Noise */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-50" />
-      
+
       <Navbar />
       <main>
         <Hero />
