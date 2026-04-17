@@ -6,7 +6,6 @@ import {
   Globe,
   BarChart3,
   Mail,
-  ChevronRight,
   CheckCircle2,
   Clock,
   Trophy
