@@ -32,7 +32,7 @@ const Navbar = () => (
 );
 
 const Hero = () => (
-  <section id="inicio" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+  <section id="inicio" className="relative flex items-center justify-center pt-40 pb-20 overflow-hidden">
     {/* Background Glow */}
     <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-premium-emerald/10 blur-[120px] rounded-full" />
     <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-premium-cyan/10 blur-[120px] rounded-full" />
