@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import logoImg from "./assets/programacao.png";
 import { 
   Rocket, 
   Smartphone, 
@@ -15,7 +16,9 @@ const Navbar = () => (
   <nav className="fixed top-0 w-full z-50 px-6 py-4">
     <div className="max-w-7xl mx-auto flex items-center justify-between glass-card px-6 py-3 border-white/5">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded-lg flex items-center justify-center font-bold text-white">N</div>
+        <div className="w-8 h-8 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded-lg flex items-center justify-center overflow-hidden">
+          <img src={logoImg} alt="N" className="w-full h-full object-cover" />
+        </div>
         <span className="text-xl font-bold text-white tracking-tighter">NANO</span>
       </div>
       
@@ -171,60 +174,135 @@ const Services = () => {
   );
 };
 
-const Contact = () => (
-  <section id="contato" className="py-20 bg-black/30">
-    <div className="max-w-3xl mx-auto px-6 text-center">
-      <h2 className="text-3xl md:text-5xl font-bold mb-6">Vamos escalar sua ideia?</h2>
-      <p className="text-slate-400 mb-10">
-        Nossa equipe de especialistas está pronta para analisar seu projeto e propor a melhor solução técnica.
-      </p>
-      
-      <div className="glass-card p-8 text-left border-white/5">
-        <form className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Nome</label>
-              <input 
-                type="text" 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
-                placeholder="Seu nome"
-              />
+import { useState } from "react";
+
+const Contact = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
+        },
+        body: JSON.stringify({
+          from: 'Acme <onboarding@resend.dev>', // Ou email de domínio verificado do Resend
+          to: ['belemonline@gmail.com'],
+          subject: `Novo contato pelo site: ${formData.name}`,
+          html: `
+            <h3>Novo Contato Recebido</h3>
+            <p><strong>Nome:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Mensagem:</strong><br/>${formData.message}</p>
+          `
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao enviar email');
+      }
+
+      setStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    }
+  };
+
+  return (
+    <section id="contato" className="py-20 bg-black/30">
+      <div className="max-w-3xl mx-auto px-6 text-center">
+        <h2 className="text-3xl md:text-5xl font-bold mb-6">Vamos escalar sua ideia?</h2>
+        <p className="text-slate-400 mb-10">
+          Nossa equipe de especialistas está pronta para analisar seu projeto e propor a melhor solução técnica.
+        </p>
+        
+        <div className="glass-card p-8 text-left border-white/5">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Nome</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
+                  placeholder="Seu nome"
+                  disabled={status === 'loading'}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">E-mail</label>
+                <input 
+                  type="email" 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
+                  placeholder="contato@empresa.com"
+                  disabled={status === 'loading'}
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">E-mail</label>
-              <input 
-                type="email" 
+              <label className="text-sm font-medium text-slate-300">Sua Mensagem</label>
+              <textarea 
+                rows={4}
+                required
+                value={formData.message}
+                onChange={(e) => setFormData({...formData, message: e.target.value})}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
-                placeholder="contato@empresa.com"
+                placeholder="Descreva seu desafio tecnológico..."
+                disabled={status === 'loading'}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-300">Sua Mensagem</label>
-            <textarea 
-              rows={4}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-premium-emerald transition-colors"
-              placeholder="Descreva seu desafio tecnológico..."
-            />
-          </div>
-          <button type="submit" className="btn-premium w-full flex items-center justify-center gap-2">
-            <Mail className="w-5 h-5" /> Enviar Mensagem
-          </button>
-        </form>
+            
+            {status === 'success' && (
+              <div className="p-4 bg-premium-emerald/10 border border-premium-emerald/20 rounded-xl text-premium-emerald text-sm text-center">
+                Mensagem enviada com sucesso! Entraremos em contato em breve.
+              </div>
+            )}
+            
+            {status === 'error' && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm text-center">
+                Ocorreu um erro ao enviar a mensagem. Tente novamente mais tarde.
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="btn-premium w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={status === 'loading'}
+            >
+              <Mail className="w-5 h-5" /> 
+              {status === 'loading' ? 'Enviando...' : 'Enviar Mensagem'}
+            </button>
+          </form>
+        </div>
+        
+        <div className="mt-12 text-slate-500 text-sm">
+          Ou envie um e-mail direto para: <span className="text-white">contato@nano.com.br</span>
+        </div>
       </div>
-      
-      <div className="mt-12 text-slate-500 text-sm">
-        Ou envie um e-mail direto para: <span className="text-white">contato@nano.com.br</span>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const Footer = () => (
   <footer className="py-12 border-t border-white/5">
     <div className="max-w-7xl mx-auto px-6 flex flex-col md:row items-center justify-between gap-6">
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded flex items-center justify-center font-bold text-white text-xs">N</div>
+        <div className="w-6 h-6 bg-gradient-to-br from-premium-emerald to-premium-cyan rounded flex items-center justify-center overflow-hidden">
+          <img src={logoImg} alt="N" className="w-full h-full object-cover" />
+        </div>
         <span className="font-bold text-white tracking-tighter">NANO</span>
       </div>
       <div className="text-sm text-slate-500">
