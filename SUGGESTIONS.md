@@ -19,7 +19,7 @@ Baseado na auditoria do **Site-Visual-Moderno Standard**, aqui estão as sugest�
 - **Internacionalização:** Preparar o projeto para i18n (Português/Inglês), dado o nível das soluções da Nano.
 
 ## 🛡️ Segurança
-- **API Key Proxy:** Mover a lógica de envio de e-mail para uma **Edge Function** (Vercel/Netlify) ou um backend. Atualmente, a chave `VITE_RESEND_API_KEY` fica exposta no código fonte do navegador.
+- **[CONCLUÍDO] API Key Proxy:** A lógica de envio de e-mail foi movida para um proxy seguro no Cloud Run. A chave agora está protegida no backend.
 - **Honeypot:** Adicionar um campo oculto no formulário para evitar spam de bots.
 
 ---

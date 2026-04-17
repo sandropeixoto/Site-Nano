@@ -202,32 +202,24 @@ const Contact = () => {
     return value.substring(0, 15);
   };
 
+  const API_URL = 'https://mail-proxy-has46dauxa-rj.a.run.app';
+
   const onSubmit = async (data: ContactFormData) => {
     setStatus('loading');
 
     try {
-      const response = await fetch('https://api.resend.com/emails', {
+      const response = await fetch(`${API_URL}/send-email`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          from: 'NANO <contato@mail.nano.net.br>', // Ou email de domínio verificado do Resend
-          to: ['belemonline@gmail.com'],
-          subject: `Novo contato pelo site: ${data.name}`,
-          html: `
-            <h3>Novo Contato Recebido</h3>
-            <p><strong>Nome:</strong> ${data.name}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-            <p><strong>Telefone:</strong> ${data.phone}</p>
-            <p><strong>Mensagem:</strong><br/>${data.message}</p>
-          `
-        })
+        body: JSON.stringify(data)
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Falha ao enviar email');
+        throw new Error(result.error || 'Falha ao enviar e-mail');
       }
 
       setStatus('success');
