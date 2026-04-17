@@ -24,7 +24,7 @@ const Navbar = () => (
       <div className="hidden md:flex items-center gap-8 text-sm font-medium">
         <a href="#inicio" className="hover:text-premium-emerald transition-colors">Início</a>
         <a href="#servicos" className="hover:text-premium-emerald transition-colors">Serviços</a>
-        <a href="#quem-somos" className="hover:text-premium-emerald transition-colors">Quem Somos</a>
+        {/*<a href="#quem-somos" className="hover:text-premium-emerald transition-colors">Quem Somos</a>*/}
         <a href="#contato" className="btn-premium py-2 px-6 text-xs">Falar com Especialista</a>
       </div>
     </div>
@@ -54,14 +54,14 @@ const Hero = () => (
           Transformamos desafios em oportunidades reais através de expertise em desenvolvimento
           web, mobile e consultoria estratégica de alto nível.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button className="btn-premium w-full sm:w-auto">
             Iniciar meu Projeto
           </button>
           <button className="px-8 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all font-semibold w-full sm:w-auto">
             Ver Cases de Sucesso
           </button>
-        </div>
+        </div> */}
       </motion.div>
     </div>
   </section>
