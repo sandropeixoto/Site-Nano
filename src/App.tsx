@@ -251,6 +251,9 @@ const Contact = () => {
         body: JSON.stringify({
           ...data,
           subject: 'Novo contato via site NANO',
+          // We send both to be safe: html for modern proxies, 
+          // and a formatted message for simpler ones
+          message: `Novo contato via site NANO\n\nNome: ${data.name}\nE-mail: ${data.email}\nTelefone: ${data.phone}\n\nMensagem:\n${data.message}`,
           html: emailBody
         })
       });
