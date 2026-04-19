@@ -337,9 +337,8 @@ const Footer = () => (
       <div className="text-sm text-slate-500">
         © 2026 Nano Soluções Tecnológicas. Todos os direitos reservados.
       </div>
-      <div className="flex gap-6 text-sm">
-        <a href="#" className="hover:text-white transition-colors">Privacy</a>
-        <a href="#" className="hover:text-white transition-colors">Terms</a>
+      <div className="text-sm text-slate-500">
+        Desenvolvido por <a href="https://sandropeixoto.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-premium-emerald/30 underline-offset-4">Sandro Peixoto</a>
       </div>
     </div>
   </footer>
