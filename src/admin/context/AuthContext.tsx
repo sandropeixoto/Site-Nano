@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { account } from '../../lib/appwrite';
-import { Models } from 'appwrite';
+import type { Models } from 'appwrite';
 import { AuthContext } from './AuthContextDefinition';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
