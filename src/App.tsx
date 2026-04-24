@@ -1,5 +1,10 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import logoImg from "./assets/programacao.png";
+import { useState, lazy, Suspense, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Rocket,
   Smartphone,
@@ -8,8 +13,15 @@ import {
   Mail,
   CheckCircle2,
   Clock,
-  Trophy
+  Trophy,
+  ExternalLink,
+  Loader2
 } from "lucide-react";
+import { databases, APPWRITE_CONFIG } from "./lib/appwrite";
+import { Query } from "appwrite";
+
+// Lazy loaded Admin Module
+const AdminModule = lazy(() => import("./admin/AdminModule"));
 
 const Navbar = () => (
   <nav className="fixed top-0 w-full z-50 px-6 py-4">
@@ -24,6 +36,7 @@ const Navbar = () => (
       <div className="hidden md:flex items-center gap-8 text-sm font-medium">
         <a href="#inicio" className="hover:text-premium-emerald transition-colors">Início</a>
         <a href="#servicos" className="hover:text-premium-emerald transition-colors">Serviços</a>
+        <a href="#portfolio" className="hover:text-premium-emerald transition-colors">Portfólio</a>
         {/*<a href="#quem-somos" className="hover:text-premium-emerald transition-colors">Quem Somos</a>*/}
         <a href="#contato" className="btn-premium py-2 px-6 text-xs">Falar com Especialista</a>
       </div>
@@ -54,14 +67,6 @@ const Hero = () => (
           Transformamos desafios em oportunidades reais através de expertise em desenvolvimento
           web, mobile e consultoria estratégica de alto nível.
         </p>
-        {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button className="btn-premium w-full sm:w-auto">
-            Iniciar meu Projeto
-          </button>
-          <button className="px-8 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all font-semibold w-full sm:w-auto">
-            Ver Cases de Sucesso
-          </button>
-        </div> */}
       </motion.div>
     </div>
   </section>
@@ -161,10 +166,6 @@ const Services = () => {
                   </li>
                 ))}
               </ul>
-
-              {/* <button className="mt-8 flex items-center gap-2 text-premium-emerald font-semibold group-hover:gap-4 transition-all">
-                Saiba mais <ChevronRight className="w-4 h-4" />
-              </button> */}
             </motion.div>
           ))}
         </div>
@@ -173,10 +174,160 @@ const Services = () => {
   );
 };
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+interface Project {
+  $id: string;
+  title: string;
+  category: string;
+  description: string;
+  tags: string[];
+  image: string;
+  link: string;
+}
+
+const Portfolio = () => {
+  type Category = 'all' | 'websites' | 'solutions' | 'microsaas';
+  
+  const [activeFilter, setActiveFilter] = useState<Category>('all');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await databases.listDocuments(
+          APPWRITE_CONFIG.databaseId,
+          APPWRITE_CONFIG.collectionId,
+          [Query.orderDesc("$createdAt")]
+        );
+        setProjects(response.documents as unknown as Project[]);
+      } catch (error) {
+        console.error("Erro ao carregar portfólio:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  const filteredProjects = activeFilter === 'all' 
+    ? projects 
+    : projects.filter(p => p.category === activeFilter);
+
+  const filterOptions: { label: string, value: Category }[] = [
+    { label: 'Todos', value: 'all' },
+    { label: 'Websites & Clientes', value: 'websites' },
+    { label: 'Soluções Customizadas', value: 'solutions' },
+    { label: 'Micro SaaS', value: 'microsaas' }
+  ];
+
+  return (
+    <section id="portfolio" className="py-20 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Casos de Sucesso</h2>
+          <p className="text-slate-400">Resultados reais para desafios tecnológicos complexos.</p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {filterOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setActiveFilter(opt.value)}
+              className={`px-6 py-2 rounded-full border transition-all text-sm font-medium ${
+                activeFilter === opt.value
+                  ? 'bg-premium-emerald text-white border-premium-emerald'
+                  : 'bg-white/5 text-slate-400 border-white/10 hover:border-premium-emerald/50'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="relative min-h-[400px]">
+          {loading ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-4">
+              <Loader2 className="w-10 h-10 animate-spin text-premium-emerald" />
+              <p className="text-sm uppercase tracking-widest font-medium">Carregando cases...</p>
+            </div>
+          ) : (
+            <motion.div 
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProjects.map((project) => (
+                  <motion.div
+                    key={project.$id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="glass-card overflow-hidden border-white/5 group relative"
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={project.image} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      
+                      {/* External Link Icon */}
+                      {project.link && project.link !== "#" && (
+                        <a 
+                          href={project.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-premium-emerald backdrop-blur-md rounded-full border border-white/10 transition-all opacity-0 group-hover:opacity-100 transform translate-y-[-10px] group-hover:translate-y-0"
+                        >
+                          <ExternalLink className="w-4 h-4 text-white" />
+                        </a>
+                      )}
+
+                      <div className="absolute bottom-4 left-4 flex gap-2">
+                        {project.tags?.map((tag: string) => (
+                          <span key={tag} className="px-2 py-0.5 bg-premium-emerald/20 border border-premium-emerald/30 text-premium-emerald text-[10px] rounded-md backdrop-blur-md">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-bold group-hover:text-premium-emerald transition-colors">
+                          {project.title}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                        {project.description}
+                      </p>
+                      
+                      {project.link && project.link !== "#" && (
+                        <a 
+                          href={project.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs font-semibold text-premium-emerald hover:gap-3 transition-all"
+                        >
+                          Ver Projeto Online <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const contactSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -344,20 +495,35 @@ const Footer = () => (
   </footer>
 );
 
+const HomePage = () => (
+  <div className="min-h-screen relative overflow-x-hidden selection:bg-premium-emerald/30 selection:text-white">
+    {/* Dynamic Background Noise */}
+    <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-50" />
+
+    <Navbar />
+    <main>
+      <Hero />
+      <Metrics />
+      <Services />
+      <Portfolio />
+      <Contact />
+    </main>
+    <Footer />
+  </div>
+);
+
 export default function App() {
   return (
-    <div className="min-h-screen relative overflow-x-hidden selection:bg-premium-emerald/30 selection:text-white">
-      {/* Dynamic Background Noise */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-50" />
-
-      <Navbar />
-      <main>
-        <Hero />
-        <Metrics />
-        <Services />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route 
+        path="/admin/*" 
+        element={
+          <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white font-inter">Carregando Painel...</div>}>
+            <AdminModule />
+          </Suspense>
+        } 
+      />
+    </Routes>
   );
 }
