@@ -37,8 +37,50 @@ interface PortfolioFormProps {
   onSuccess: () => void;
 }
 
+async function compressToWebP(file: File): Promise<File> {
+  const MAX_WIDTH = 1920;
+  const QUALITY = 0.9; // WebP 90% — visually lossless
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      let { width, height } = img;
+      if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width);
+        width = MAX_WIDTH;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+            type: 'image/webp',
+            lastModified: Date.now(),
+          }));
+        },
+        'image/webp',
+        QUALITY
+      );
+    };
+
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 export default function PortfolioForm({ project, onClose, onSuccess }: PortfolioFormProps) {
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
+  const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
   const [formData, setFormData] = useState<ProjectFormData>({
     title: project?.title || "",
     category: project?.category || "websites",
@@ -48,15 +90,25 @@ export default function PortfolioForm({ project, onClose, onSuccess }: Portfolio
     imageUrl: project?.image || "",
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFormData(prev => ({ 
-        ...prev, 
-        imageFile: file,
-        imageUrl: URL.createObjectURL(file) // Preview
-      }));
-    }
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const original = e.target.files[0];
+
+    setCompressing(true);
+    setCompressionInfo(null);
+
+    const compressed = await compressToWebP(original);
+    const saved = Math.round((1 - compressed.size / original.size) * 100);
+    setCompressionInfo(
+      `${(original.size / 1024).toFixed(0)} KB → ${(compressed.size / 1024).toFixed(0)} KB (−${saved}%)`
+    );
+
+    setFormData(prev => ({
+      ...prev,
+      imageFile: compressed,
+      imageUrl: URL.createObjectURL(compressed),
+    }));
+    setCompressing(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,11 +189,16 @@ export default function PortfolioForm({ project, onClose, onSuccess }: Portfolio
           {/* Image Upload Area */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-300 ml-1">Imagem do Projeto</label>
-            <div 
+            <div
               className="relative aspect-video rounded-xl border-2 border-dashed border-white/10 bg-white/5 overflow-hidden group cursor-pointer hover:border-premium-emerald/50 transition-all"
-              onClick={() => document.getElementById('file-upload')?.click()}
+              onClick={() => !compressing && document.getElementById('file-upload')?.click()}
             >
-              {formData.imageUrl ? (
+              {compressing ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-400">
+                  <Loader2 className="w-8 h-8 animate-spin text-premium-emerald" />
+                  <p className="text-xs uppercase tracking-widest">Otimizando imagem...</p>
+                </div>
+              ) : formData.imageUrl ? (
                 <>
                   <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -155,17 +212,22 @@ export default function PortfolioForm({ project, onClose, onSuccess }: Portfolio
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-500">
                   <ImageIcon className="w-12 h-12 opacity-20" />
                   <p className="text-sm">Clique ou arraste para fazer upload</p>
-                  <p className="text-[10px] uppercase tracking-widest">JPG, PNG ou WEBP (Max 2MB)</p>
+                  <p className="text-[10px] uppercase tracking-widest">JPG, PNG ou WEBP</p>
                 </div>
               )}
-              <input 
+              <input
                 id="file-upload"
-                type="file" 
-                className="hidden" 
+                type="file"
+                className="hidden"
                 accept="image/*"
                 onChange={handleFileChange}
               />
             </div>
+            {compressionInfo && (
+              <p className="text-[11px] text-premium-emerald/80 ml-1">
+                Otimizado: {compressionInfo}
+              </p>
+            )}
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
